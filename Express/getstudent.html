@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Students</title>
+    <link rel="stylesheet" href="style.css" type="text/css">
+    <style>
+        /* Table specific styles */
+        .table-container {
+            max-width: 800px;
+            margin: 30px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            color: #333;
+        }
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .loading {
+            text-align: center;
+            font-style: italic;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo">MyWebsite</div>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/contact">Contact</a></li>
+                <li><a href="/add-student-page">Add Student</a></li>
+                <li><a href="/view-students-page" class="active">View Students</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="hero-section" style="height: auto; padding: 40px 20px;">
+        <div class="hero-content" style="max-width: 100%;">
+            <h1>Registered Students</h1>
+            <p>Below is the live breakdown of all records stored inside MongoDB.</p>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student ID</th>
+                            <th>Name</th>
+                            <th>Age</th>
+                            <th>Gender</th>
+                        </tr>
+                    </thead>
+                    <tbody id="student-data">
+                        <tr>
+                            <td colspan="4" class="loading">Fetching records...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Calls the Express endpoint to retrieve JSON records
+        fetch('/getstudent')
+            .then(res => res.json())
+            .then(data => {
+                const tbody = document.getElementById('student-data');
+                tbody.innerHTML = ''; // Clear loading message
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="loading">No records found.</td></tr>';
+                    return;
+                }
+
+                data.forEach(student => {
+                    const row = `
+                        <tr>
+                            <td>${student._id}</td>
+                            <td>${student.name}</td>
+                            <td>${student.age}</td>
+                            <td>${student.gender}</td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            })
+            .catch(err => {
+                console.error("Error loading data:", err);
+                document.getElementById('student-data').innerHTML = 
+                    '<tr><td colspan="4" class="loading" style="color: red;">Error loading student logs.</td></tr>';
+            });
+    </script>
+
+</body>
+</html>
